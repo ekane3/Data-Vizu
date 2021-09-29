@@ -11,9 +11,49 @@ import time
 import seaborn as sns
 import plotly.figure_factory as ff
 import matplotlib.pyplot as plt
+import streamlit.components.v1 as components
 
 
 
+# bootstrap 4 collapse example
+components.html(
+    """
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <div id="accordion">
+      <div class="card">
+        <div class="card-header" id="headingOne">
+          <h5 class="mb-0">
+            <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            Some images of the project
+            </button>
+          </h5>
+        </div>
+        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+          <div class="card-body">
+            Collapsible Group Item #1 content
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" id="headingTwo">
+          <h5 class="mb-0">
+            <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            Testing Streamlit components
+            </button>
+          </h5>
+        </div>
+        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+          <div class="card-body">
+            Collapsible Group Item #2 content
+          </div>
+        </div>
+      </div>
+    </div>
+    """,
+    height=600,
+)
 
 #Title bar
 def title_bar():
@@ -42,13 +82,14 @@ def title_bar():
     B02682 : Schmecken  
     B02764 : Danach-NY  
     """)
+title_bar()
 #LOAD DATA
 #Connecting to endpoint to get csv file 
 
-DATA_URL = ("../data/uber-raw-data-apr14.csv")
+DATA_URL = ("uber-raw-data-apr14.csv")
 
 # Function to load data
-@st.cache
+@st.cache(allow_output_mutation=True)
 def load_data(): 
     data = pd.read_csv(DATA_URL)
     #Convert date/time column type from object to datetime
@@ -56,14 +97,9 @@ def load_data():
     lowercase = lambda x: str(x).lower()
     data.rename(lowercase, axis='columns', inplace=True)
     return data
-
+#Loading data in dataFrame
 df = load_data()
 
-def show_head():
-    st.markdown(" #### Let's show a sample of our data, to see what type of data we'll be dealing with.")
-    if st.checkbox('Show dataframe'):
-        st.table(df.head(10))
-show_head()
 #Functions to get day of month, weekday, hour
 
 def get_dom(dt):
@@ -78,12 +114,23 @@ def get_hour(dt):
     return dt.hour
 df['hour'] = df['date/time'].map(get_hour)
 
+# Show a sample of our data
+
+def show_head():
+    st.markdown(" #### Let's show a sample of our data, to see what type of data we'll be dealing with.")
+    if st.checkbox('Show dataframe'):
+        st.table(df.head(10))
+
+show_head()
+
+
 #hist_values = np.histogram(df[], bins=24, range=(0,24))[0]
 #st.bar_chart(hist_values)
 #st.bar_chart(df['dom'])
 #st.line_chart(df)
 
 #VISUAL REPRESENTATION
+
 def histograms():
     st.subheader('Frequency by date of month')
 
@@ -98,6 +145,7 @@ def histograms():
 histograms()
 
 #COUNTS
+
 def counts_visu():
     st.write(df['lon'].value_counts())
     st.write(df['lat'].value_counts())
@@ -110,8 +158,10 @@ def counts_visu():
 
 counts_visu()
 
+# Maps
+
 def maps_visu():
     st.subheader("Mapping the dataset ")
-    st.map(df.head(30), zoom=40)
+    st.map(df.head(50))
 
 maps_visu()
